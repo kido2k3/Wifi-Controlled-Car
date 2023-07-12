@@ -1,35 +1,46 @@
 
-// Pinout
-// MOTOR
-#define MOTOR1
-#define MOTOR2
-#define MOTOR3_1
-#define MOTOR3_2
-#define MOTOR4_1
-#define MOTOR4_2
-// ULTRASONIC SEN HC-SC04
-#define TRIG
-#define ECHO
-////////////////////////////////////////////////
-class Ult_ss
-{
-public:
-  void intial()
-  {
-  }
-};
+
+#define SPEED 255
 class Car
 {
-private:
-  int speed, speed_turn;
+protected:
+  uint8_t speed_forward;
+  uint8_t speed_other;
+  uint8_t enA;
+  uint8_t enB;
+  uint8_t in1;
+  uint8_t in2;
+  uint8_t in3;
+  uint8_t in4;
 
 public:
-  void intial()
+  Car()
   {
-    speed = 0;
-    speed_turn = 0;
+    speed_forward = speed_other = 255;
+    enA = 5;
+    enB = 6;
+    in1 = 4;
+    in2 = 2;
+    in3 = 3;
+    in4 = 7;
+    pinMode(enA, OUTPUT);
+    pinMode(enB, OUTPUT);
+    pinMode(in1, OUTPUT);
+    pinMode(in2, OUTPUT);
+    pinMode(in3, OUTPUT);
+    pinMode(in4, OUTPUT);
   }
-  void forw()
+  void forward()
+  {
+    analogWrite(enA, speed_forward);
+    analogWrite(enB, speed_forward);
+
+    digitalWrite(in1, 0);
+    digitalWrite(in2, 1);
+    digitalWrite(in3, 1);
+    digitalWrite(in4, 0);
+  }
+  void backward()
   {
   }
   void left()
@@ -38,7 +49,17 @@ public:
   void right()
   {
   }
-  void back()
+  void stop()
+  {
+  }
+  void read_speed()
   {
   }
 };
+void setup()
+{
+  Car car;
+}
+void loop()
+{
+}
