@@ -2,7 +2,7 @@
 class Car
 {
 protected:
-  uint8_t speed; // from 105 to 255
+  uint8_t s; // from 105 to 255
   uint8_t enA;
   uint8_t enB;
   uint8_t in1;
@@ -13,7 +13,7 @@ protected:
 public:
   Car()
   {
-    speed = 255;
+    s = 255;
     enA = 6;
     enB = 5;
     in1 = 2; // move forward: 1: off, 2: on
@@ -29,8 +29,8 @@ public:
   }
   void forward()
   {
-    analogWrite(enA, speed);
-    analogWrite(enB, speed);
+    analogWrite(enA, s);
+    analogWrite(enB, s);
 
     digitalWrite(in1, 0);
     digitalWrite(in2, 1);
@@ -63,17 +63,27 @@ public:
     digitalWrite(in1, 0);
     digitalWrite(in2, 1);
   }
+  void rotate()
+  {
+    analogWrite(enA, SPEED_OTHER);
+    analogWrite(enB, SPEED_OTHER);
+
+    digitalWrite(in1, 0);
+    digitalWrite(in2, 1);
+    digitalWrite(in3, 0);
+    digitalWrite(in4, 1);
+  }
   void stop()
   {
     analogWrite(enA, 0);
     analogWrite(enB, 0);
   }
-  void set_speed(int val)
+  void set_speed(int sp)
   {
-    speed = 105 + (255 - 105) * val / 100.0;
+    s = sp;
   }
   uint8_t get_speed()
   {
-    return speed;
+    return s;
   }
 };

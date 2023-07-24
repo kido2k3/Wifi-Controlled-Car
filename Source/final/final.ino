@@ -36,8 +36,8 @@
 uint8_t RemoteXY_CONF[] = // 66 bytes
     {255, 5, 0, 0, 0, 59, 0, 16, 31, 1, 1, 1, 33, 76, 9, 17, 2, 31, 0, 1,
      1, 33, 50, 9, 17, 2, 31, 0, 1, 1, 16, 68, 17, 8, 2, 31, 0, 1, 1, 42,
-     68, 17, 8, 2, 31, 0, 2, 1, 3, 84, 22, 11, 2, 26, 31, 31, 87, 105, 102, 105,
-     0, 65, 117, 116, 111, 0};
+     68, 17, 8, 2, 31, 0, 2, 1, 4, 80, 22, 11, 2, 26, 31, 31, 65, 117, 116, 111,
+     0, 87, 105, 102, 105, 0};
 
 // this structure defines all the variables and events of your control interface
 struct
@@ -59,11 +59,20 @@ struct
 /////////////////////////////////////////////
 //           END RemoteXY include          //
 /////////////////////////////////////////////
+#define TRIG 8
+#define ECHO 9
+
+unsigned long thoigian; // Thời gian là kiểu số nguyên
+double khoangcach;      // Khoảng cách là kiểu số nguyên
+unsigned long CurTime;
+unsigned long PreTime;
+int stage;
 Car car;
 void run()
 {
-  if (RemoteXY.mode)
+  if (!RemoteXY.mode)
   {
+    car.set_speed(225);
     if (RemoteXY.forw)
     {
       car.forward();
@@ -85,13 +94,47 @@ void run()
   }
   else
   {
+    car.set_speed(150);
+    CurTime = millis();
+    // Phát xung từ chân TRIG, có độ rộng là 10ms
+    digitalWrite(TRIG, 0); // Tắt chân TRIG
+    delayMicroseconds(2);
+    digitalWrite(TRIG, 1); // bật chân TRIG để phát xung
+    delayMicroseconds(10); // Xung có độ rộng là 10 microsecond
+    digitalWrite(TRIG, 0);
+    thoigian = pulseIn(ECHO, HIGH);
+    khoangcach = (thoigian + 2.8291) / 43.619;
+    if (khoangcach < 17.5)
+    {
+      stage = 2;
+    }
+    if (stage == 1)
+    {
+      PreTime = CurTime;
+      car.forward();
+    }
+    else if (stage == 2)
+    {
+      if (CurTime - PreTime < 750)
+      {
+        car.rotate();
+      }
+      else
+      {
+        PreTime = CurTime;
+        stage = 1;
+      }
+    }
   }
 }
 
 void setup()
 {
   RemoteXY_Init();
-
+  RemoteXY.mode = 0;
+  pinMode(TRIG, OUTPUT); // Chân TRIG xuất tín hiệu
+  pinMode(ECHO, INPUT);  // Chân ECHO nhận tín hiệu
+  stage = 1;
   // TODO you setup code
 }
 
